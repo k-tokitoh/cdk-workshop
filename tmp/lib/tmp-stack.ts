@@ -2,6 +2,7 @@ import { Stack, StackProps } from "aws-cdk-lib";
 import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway";
 import { Runtime, Function, Code } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
+import { HitCounter } from "./hitcounter";
 
 export class TmpStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -14,9 +15,13 @@ export class TmpStack extends Stack {
       handler: "hello.handler", // helloというファイルからexportされるhandlerという関数を実行する
     });
 
+    const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
+      downstream: hello,
+    });
+
     const gateway = new LambdaRestApi(this, "Endpoint", {
       // 第二引数はリソースの名称。コンソールで表示される
-      handler: hello,
+      handler: helloWithCounter.handler,
     });
   }
 }
